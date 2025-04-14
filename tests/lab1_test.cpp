@@ -1,3 +1,4 @@
+#include <iostream>
 #include <string>
 #include <vector>
 
@@ -47,6 +48,7 @@ task<> func2(std::vector<int>& vec)
 
 task<int> func3()
 {
+    std::cout << "func3\n";
     co_return 1;
 }
 
@@ -57,7 +59,9 @@ task<std::string> func4()
 
 task<int> func5()
 {
+    std::cout << "before func3\n";
     auto result = co_await func3();
+    std::cout << "after func3\n";
     co_return result + 2;
 }
 
