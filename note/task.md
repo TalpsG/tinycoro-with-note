@@ -3,7 +3,7 @@
 最近有个大佬搞了一个`tinycorolab`，是一个类似`15445/6.824 lab`的一个项目，使用`liburing/coroutine`实现的异步io框架，有手册，有解答的代码。
 
 我做了个开头，后面就直接读了这个`tinycoro`(算是lab的参考答案)的代码，结合lab手册加上之前看的一点`rust async`相关的东西，总算是了解了C++的协程应该怎么用。
-下面会分几篇文章讲下这个库中比较重要的代码. 阅读的前提是要了解`c++ coroutine`的一些关键字，以及关键字的效果比如`co_await`会`awaiter`的什么函数？
+下面会分几篇文章讲下这个库中比较重要的代码. 阅读的前提是要了解`c++ coroutine`的一些规范比如协程类要求有`promise`，`awaiter`的要求，再就是一些关键字的效果比如`co_await/co_return`的效果？
 
 本文要讲的代码在 `include/coro/task.hpp`,`src/task.cpp`
 
@@ -33,6 +33,9 @@ int main(){
 
 所以可以把协程理解成一个在某个点可以`resume/suspend`的函数。我们可以把一些任务实现成一个协程函数，提交到后台线程，后台线程去调度执行已提交的全部协程。这种方式相比
 线程池`std::async`的方式开销要小很多，因为协程的任务切换是在用户态的，且协程内部异步io时可切走到其他协程，`std::async`只能`yield`。
+
+
+后台线程的调度器通过`handle`来进行协程的维护，比如`resume/destroy`。这里有一个场景，如果协程内部还调用了其他的协程，那么子协程运行完如何返回父协程`co_await`处继续执行？后面的`promise`和`task`会提到这个问题。
 
 # promise
 ```cpp
